@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Geographie Fehlertrainer – Komplett</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { 
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #2ecc71 0%, #1a6b3a 100%);
+  min-height: 100vh; padding: 20px;
+}
+
+.container { max-width: 800px; margin: 0 auto; }
+.header { text-align: center; color: white; margin-bottom: 30px; }
+.header h1 { font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+
+.progress-overview {
+  background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+.progress-bars { display: grid; gap: 12px; margin-top: 15px; }
+.progress-item { display: flex; align-items: center; gap: 12px; }
+.progress-label { min-width: 140px; font-weight: 600; font-size: 14px; }
+.progress-bar {
+  flex: 1; height: 30px; background: #e0e0e0; border-radius: 15px; overflow: hidden;
+}
+.progress-fill {
+  height: 100%; transition: width 0.5s ease; display: flex; align-items: center;
+  justify-content: center; color: white; font-weight: bold; font-size: 13px;
+}
+.level-a .progress-fill { background: #e74c3c; }
+.level-b .progress-fill { background: #f39c12; }
+.level-c .progress-fill { background: #2ecc71; }
+
+.card {
+  background: white; border-radius: 15px; padding: 30px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1); margin-bottom: 20px;
+}
+
+.level-badge {
+  display: inline-block; padding: 8px 16px; border-radius: 20px;
+  font-weight: bold; font-size: 14px; margin-bottom: 20px;
+}
+.badge-a { background: #fee; color: #e74c3c; }
+.badge-b { background: #fef5e7; color: #f39c12; }
+.badge-c { background: #eafaf1; color: #2ecc71; }
+
+.mode-switch {
+  display: flex; gap: 10px; justify-content: center; margin-bottom: 20px;
+}
+
+.mode-btn {
+  padding: 10px 24px; border: 2px solid #2ecc71; border-radius: 8px;
+  font-weight: 600; cursor: pointer; transition: all 0.3s;
+  background: white; color: #2ecc71;
+}
+
+.mode-btn.active {
+  background: #2ecc71; color: white;
+}
+
+.question-box {
+  background: #f8f9fa; padding: 20px; border-radius: 10px;
+  margin-bottom: 20px; border-left: 4px solid #2ecc71;
+}
+
+.question-text {
+  font-size: 1.2em; font-weight: 600; color: #2c3e50;
+}
+
+.answer-box {
+  background: #fff; border: 2px solid #e0e0e0; border-radius: 10px;
+  padding: 15px; margin-bottom: 20px;
+}
+
+.answer-toggle {
+  cursor: pointer; color: #2ecc71; font-weight: 600;
+  display: flex; align-items: center; gap: 8px;
+}
+
+.answer-content {
+  margin-top: 12px; padding-top: 12px; border-top: 1px solid #e0e0e0;
+  color: #27ae60; font-weight: 500; line-height: 1.6; display: none;
+}
+
+.answer-content.show { display: block; }
+.arrow { transition: transform 0.3s; display: inline-block; }
+.arrow.rotated { transform: rotate(90deg); }
+
+.button-group {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;
+}
+
+button {
+  padding: 16px; font-size: 1.1em; font-weight: bold; border: none;
+  border-radius: 10px; cursor: pointer; transition: all 0.3s;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+button:hover {
+  transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+.btn-correct { background: #2ecc71; color: white; }
+.btn-correct:hover { background: #27ae60; }
+.btn-wrong { background: #e74c3c; color: white; }
+.btn-wrong:hover { background: #c0392b; }
+.btn-reset { background: #95a5a6; color: white; width: 100%; }
+.btn-reset:hover { background: #7f8c8d; }
+
+.mc-options { display: grid; gap: 12px; margin-bottom: 20px; }
+
+.mc-option {
+  padding: 15px 20px; background: #f8f9fa; border: 2px solid #e0e0e0;
+  border-radius: 10px; cursor: pointer; transition: all 0.3s;
+  font-size: 1.05em; text-align: left;
+}
+
+.mc-option:hover { background: #e8f8f0; border-color: #2ecc71; }
+.mc-option.correct { background: #d4edda; border-color: #28a745; }
+.mc-option.wrong { background: #f8d7da; border-color: #dc3545; }
+.mc-option.disabled { pointer-events: none; opacity: 0.7; }
+
+.mc-feedback {
+  padding: 15px; border-radius: 10px; margin-top: 15px;
+  font-weight: 600; display: none;
+}
+.mc-feedback.show { display: block; }
+.mc-feedback.correct {
+  background: #d4edda; color: #155724; border-left: 4px solid #28a745;
+}
+.mc-feedback.wrong {
+  background: #f8d7da; color: #721c24; border-left: 4px solid #e74c3c;
+}
+
+.mc-next-btn {
+  width: 100%; padding: 16px; background: #2ecc71; color: white;
+  border: none; border-radius: 10px; font-size: 1.1em; font-weight: bold;
+  cursor: pointer; margin-top: 15px; display: none;
+}
+.mc-next-btn.show { display: block; }
+
+.category-filter {
+  display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px;
+}
+
+.filter-btn {
+  padding: 8px 16px; background: #ecf0f1; border: 2px solid transparent;
+  border-radius: 20px; font-size: 14px; font-weight: 600; cursor: pointer;
+  transition: all 0.3s;
+}
+
+.filter-btn:hover { background: #bdc3c7; transform: none; box-shadow: none; }
+.filter-btn.active { background: #2ecc71; color: white; border-color: #2ecc71; }
+
+.stats-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px; margin-top: 20px;
+}
+
+.stat-card {
+  background: #f8f9fa; padding: 15px; border-radius: 10px; text-align: center;
+}
+
+.stat-value { font-size: 2em; font-weight: bold; color: #2ecc71; }
+.stat-label { font-size: 0.9em; color: #7f8c8d; margin-top: 5px; }
+
+.hint {
+  background: #e8f8f0; padding: 12px; border-radius: 8px; font-size: 0.9em;
+  color: #34495e; margin-top: 15px; border-left: 4px solid #2ecc71;
+}
+
+@media (max-width: 600px) {
+  .header h1 { font-size: 1.8em; }
+  .button-group { grid-template-columns: 1fr; }
+  .mode-switch { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>🌍 Geographie Fehler-Trainer</h1>
+    <p>Vollständige Prüfungsvorbereitung mit 90+ Fragen</p>
+  </div>
+
+  <div class="progress-overview">
+    <h3 style="margin-bottom: 15px;">📊 Dein Lernfortschritt</h3>
+    <div class="progress-bars" id="progressBars"></div>
+    
+    <div class="category-filter" id="categoryFilter"></div>
+    
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="totalQuestions">0</div>
+        <div class="stat-label">Fragen gesamt</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="masteredCount">0</div>
+        <div class="stat-label">Beherrscht</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="percentMastered">0%</div>
+        <div class="stat-label">Fortschritt</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+      <div id="levelBadge"></div>
+      <div class="mode-switch">
+        <button class="mode-btn active" id="normalModeBtn" onclick="switchMode('normal')">Normal</button>
+        <button class="mode-btn" id="mcModeBtn" onclick="switchMode('mc')">Multiple Choice</button>
+      </div>
+    </div>
+    
+    <div class="question-box">
+      <div class="question-text" id="question"></div>
+    </div>
+
+    <div id="normalMode">
+      <div class="answer-box">
+        <div class="answer-toggle" id="answerToggle">
+          <span class="arrow">▶</span>
+          <span>Antwort anzeigen</span>
+        </div>
+        <div class="answer-content" id="answerContent"></div>
+      </div>
+
+      <div class="button-group">
+        <button class="btn-correct" onclick="markNormal(true)">✓ Richtig gewusst</button>
+        <button class="btn-wrong" onclick="markNormal(false)">✗ Falsch / Unsicher</button>
+      </div>
+    </div>
+
+    <div id="mcMode" style="display: none;">
+      <div class="mc-options" id="mcOptions"></div>
+      <div class="mc-feedback" id="mcFeedback"></div>
+      <button class="mc-next-btn" id="mcNextBtn" onclick="nextMC()">Nächste Frage →</button>
+    </div>
+
+    <button class="btn-reset" onclick="resetProgress()">Fortschritt zurücksetzen</button>
+
+    <div class="hint">
+      💡 <strong>Tipp:</strong> Fragen auf Stufe A werden häufiger wiederholt. 
+      <span id="modeHint">Bei richtiger Antwort steigt die Frage eine Stufe auf.</span>
+    </div>
+  </div>
+</div>
+
+<script>
+const categories = {
+  "Darstellung der Erde": "Erde",
+  "Klimazonen": "Klima",
+  "Tropen": "Tropen",
+  "Regenwald": "Regenwald",
+  "Stockwerkbau": "Stockwerk",
+  "Savanne": "Savanne",
+  "Klimadiagramm": "Klimadiagramm",
+  "Subtropen & Wüsten": "Wüsten",
+  "Atlasarbeit": "Atlas"
+};
+
+let questions = [
+  // ===== DARSTELLUNG DER ERDE (12 Fragen) =====
+  {q:"Was ist ein Globus?", a:"Ein verkleinertes, kugelförmiges Modell der Erde. Er zeigt Kontinente und Ozeane ohne Verzerrung.", l:0, cat:"Erde", mc:["Eine flache Karte der Erde","Ein verkleinertes kugelförmiges Modell der Erde","Ein Satellit im Weltall","Ein geografisches Buch"], c:1},
+  {q:"Aus wie viel Wasser und Land besteht die Erde ungefähr?", a:"Die Erde besteht grob aus 2/3 Wasser und 1/3 Land.", l:0, cat:"Erde", mc:["Hälfte Wasser, Hälfte Land","1/3 Wasser, 2/3 Land","2/3 Wasser, 1/3 Land","3/4 Wasser, 1/4 Land"], c:2},
+  {q:"Was ist die Erdachse?", a:"Eine gedachte Linie durch Nordpol und Südpol. Die Erdachse ist geneigt.", l:0, cat:"Erde", mc:["Eine reale Eisenstange durch die Erde","Eine gedachte Linie durch Nord- und Südpol","Der Äquator","Der Nullmeridian"], c:1},
+  {q:"Was ist der Äquator und wie lang ist er?", a:"Der längste Breitenkreis der Erde, etwa 40 000 km lang. Er teilt die Erde in Nord- und Südhalbkugel.", l:0, cat:"Erde", mc:["Ein Längenkreis, ca. 20 000 km","Der kürzeste Breitenkreis","Der längste Breitenkreis, ca. 40 000 km","Eine gedachte Linie von Ost nach West durch die Pole"], c:2},
+  {q:"Was ist der Nullmeridian?", a:"Er verläuft von Pol zu Pol (0°) und teilt die Erde in West- und Osthalbkugel.", l:0, cat:"Erde", mc:["Ein Breitenkreis am Äquator","Er verläuft von Pol zu Pol und teilt Erde in West und Ost","Eine Linie parallel zum Äquator","Der längste Breitenkreis"], c:1},
+  {q:"Was sind Breitenkreise und wofür dienen sie?", a:"Breitenkreise verlaufen waagrecht, parallel zum Äquator. Sie zeigen Nord/Süd an.", l:0, cat:"Erde", mc:["Verlaufen senkrecht, zeigen Ost/West","Verlaufen waagrecht, zeigen Nord/Süd","Verlaufen schräg, zeigen Höhe","Verlaufen von Pol zu Pol"], c:1},
+  {q:"Was sind Längenkreise (Meridiane) und wofür dienen sie?", a:"Längenkreise verlaufen senkrecht von Pol zu Pol. Sie zeigen Ost/West an.", l:0, cat:"Erde", mc:["Verlaufen waagrecht, zeigen Nord/Süd","Verlaufen senkrecht von Pol zu Pol, zeigen Ost/West","Verlaufen parallel zum Äquator","Zeigen die Höhe an"], c:1},
+  {q:"Was sind geografische Koordinaten?", a:"Breitengrad + Längengrad – damit kann man einen genauen Ort auf der Erde bestimmen.", l:0, cat:"Erde", mc:["Nur der Breitengrad","Breitengrad + Längengrad für genaue Ortsbestimmung","Nur der Längengrad","Name und Postleitzahl eines Ortes"], c:1},
+  {q:"Wofür hilft das Gradnetz der Erde?", a:"Das Gradnetz hilft beim Finden von Orten auf Karten und am Globus.", l:0, cat:"Erde", mc:["Zum Messen von Entfernungen","Zum Bestimmen von Klimazonen","Beim Finden von Orten auf Karten und am Globus","Zum Zeichnen von Kontinenten"], c:2},
+  {q:"Wie heißen die zwei Endpunkte der Erdachse?", a:"Nordpol und Südpol.", l:0, cat:"Erde", mc:["Äquator und Nullmeridian","Ostpol und Westpol","Nordpol und Südpol","Wendekreis des Krebses und Steinbocks"], c:2},
+  {q:"Was trennt die Nord- und Südhalbkugel?", a:"Der Äquator.", l:0, cat:"Erde", mc:["Der Nullmeridian","Der Wendekreis des Krebses","Der Äquator","Die Erdachse"], c:2},
+  {q:"Was trennt die West- und Osthalbkugel?", a:"Der Nullmeridian.", l:0, cat:"Erde", mc:["Der Äquator","Der Nullmeridian","Der Wendekreis","Der Nordpol"], c:1},
+
+  // ===== KLIMAZONEN (12 Fragen) =====
+  {q:"Warum entstehen Klimazonen auf der Erde?", a:"Weil die Sonne die Erde nicht überall gleich stark erwärmt. Am Äquator treffen Sonnenstrahlen steiler auf, in Polnähe flacher.", l:0, cat:"Klima", mc:["Weil die Erde unterschiedlich groß ist","Weil die Sonne die Erde nicht überall gleich stark erwärmt","Wegen der Meeresströmungen","Wegen der Erdrotation"], c:1},
+  {q:"Welche vier Klimazonen gibt es auf der Erde?", a:"Kalte Zone, Gemäßigte Zone, Subtropen und Tropen.", l:0, cat:"Klima", mc:["Arktis, Tundra, Steppe, Wüste","Kalte Zone, Gemäßigte Zone, Subtropen, Tropen","Polarzone, Waldzone, Graszone, Wüstenzone","Nord, Süd, Ost, West"], c:1},
+  {q:"Wo liegt die Kalte Zone und welche Farbe hat sie auf der Karte?", a:"Bei den Polen. Sehr kalt. Farbe: blau.", l:0, cat:"Klima", mc:["Am Äquator, rot","Bei den Wendekreisen, gelb","Bei den Polen, blau","In der Mitte, grün"], c:2},
+  {q:"Wo liegt die Gemäßigte Zone und welche Farbe hat sie auf der Karte?", a:"Zwischen kalter Zone und Subtropen. Milde Temperaturen. Farbe: grün.", l:0, cat:"Klima", mc:["Am Äquator, rot","Zwischen Kalter Zone und Subtropen, grün","Bei den Polen, blau","Am Wendekreis, gelb"], c:1},
+  {q:"Wo liegt die Subtropenzone und welche Farbe hat sie auf der Karte?", a:"Rund um die Wendekreise. Warm bis sehr trocken. Farbe: gelb.", l:0, cat:"Klima", mc:["Rund um den Äquator, rot","Bei den Polen, blau","Rund um die Wendekreise, gelb","Zwischen den Polen, grün"], c:2},
+  {q:"Wo liegen die Tropen und welche Farbe haben sie auf der Karte?", a:"Rund um den Äquator. Ganzjährig warm und feucht. Farbe: rot.", l:0, cat:"Klima", mc:["Bei den Polen, blau","Rund um die Wendekreise, gelb","Rund um den Äquator, rot","In der Mitte Europas, grün"], c:2},
+  {q:"Was ist der Wendekreis des Krebses?", a:"23,5° Nord – eine wichtige Grenzlinie der Tropischen Zone.", l:0, cat:"Klima", mc:["0° Breite","23,5° Süd","23,5° Nord","66,5° Nord"], c:2},
+  {q:"Was ist der Wendekreis des Steinbocks?", a:"23,5° Süd – eine wichtige Grenzlinie der Tropischen Zone.", l:0, cat:"Klima", mc:["0° Breite","23,5° Nord","23,5° Süd","66,5° Süd"], c:2},
+  {q:"Zwischen welchen zwei Linien liegen die Tropen?", a:"Zwischen dem Wendekreis des Krebses (23,5° N) und dem Wendekreis des Steinbocks (23,5° S).", l:0, cat:"Klima", mc:["Zwischen den Polen","Zwischen den Polarkreisen","Zwischen den Wendekreisen des Krebses und des Steinbocks","Zwischen Äquator und Nordpol"], c:2},
+  {q:"Was sind Passatwinde?", a:"Winde, die sich auf der Erde bewegen und Klima sowie Niederschlag beeinflussen.", l:0, cat:"Klima", mc:["Stürme in der Arktis","Winde die Klima und Niederschlag beeinflussen","Meeresströmungen","Bergwinde in den Alpen"], c:1},
+  {q:"Warum ist es am Äquator wärmer als an den Polen?", a:"Weil die Sonnenstrahlen am Äquator steiler auftreffen und die Energie auf eine kleinere Fläche konzentriert wird.", l:0, cat:"Klima", mc:["Weil der Äquator näher an der Sonne ist","Weil die Sonnenstrahlen steiler auftreffen","Wegen der Meeresströmungen","Weil die Erde am Äquator dicker ist"], c:1},
+  {q:"Welcher Kontinent hat nur die kalte Zone?", a:"Die Antarktis.", l:0, cat:"Klima", mc:["Australien","Südamerika","Die Antarktis","Afrika"], c:2},
+
+  // ===== TROPEN (10 Fragen) =====
+  {q:"Was ist das Tageszeitenklima der Tropen?", a:"In den Tropen gibt es keine Jahreszeiten. Stattdessen wiederholt sich täglich ein ähnliches Muster: morgens warm, mittags sehr heiß mit Gewitter, abends ruhig.", l:0, cat:"Tropen", mc:["Klima mit vier Jahreszeiten","Tägliches Muster: morgens warm, mittags heiß, nachmittags Gewitter","Nur eine Regenzeit im Jahr","Immer gleiche Temperaturen ohne Veränderung"], c:1},
+  {q:"Wie warm ist es in den Tropen durchschnittlich?", a:"Ca. 25–27 °C ganzjährig.", l:0, cat:"Tropen", mc:["Ca. 5–10 °C","Ca. 15–20 °C","Ca. 25–27 °C","Ca. 40–50 °C"], c:2},
+  {q:"Wie viel Niederschlag fällt in den Tropen pro Jahr?", a:"Sehr viel – oft 2000 bis 10 000 mm pro Jahr.", l:0, cat:"Tropen", mc:["Weniger als 100 mm","Ca. 500–1000 mm","2000 bis 10 000 mm","Gar keiner"], c:2},
+  {q:"Was passiert in den Tropen am Vormittag?", a:"Warme, feuchte Luft steigt auf und Wolken entstehen.", l:0, cat:"Tropen", mc:["Es regnet stark","Warme feuchte Luft steigt auf und Wolken entstehen","Es ist kalt und trocken","Nichts Besonderes passiert"], c:1},
+  {q:"Was passiert in den Tropen mittags/nachmittags?", a:"Es ist sehr heiß und schwül; oft folgen Gewitter und Regen.", l:0, cat:"Tropen", mc:["Es ist angenehm kühl","Starker Wind aus dem Norden","Sehr heiß und schwül, oft Gewitter und Regen","Sonnenschein ohne Wolken"], c:2},
+  {q:"Was passiert in den Tropen abends?", a:"Der Regen lässt nach, die Sonne geht unter und die Nacht beginnt.", l:0, cat:"Tropen", mc:["Es wird wärmer","Der Regen lässt nach, Sonne geht unter","Stärkere Gewitter beginnen","Es schneit"], c:1},
+  {q:"Warum wirkt das Klima in den Tropen oft schwül?", a:"Weil die Luftfeuchtigkeit sehr hoch ist.", l:0, cat:"Tropen", mc:["Wegen der hohen Temperaturen allein","Wegen der hohen Luftfeuchtigkeit","Wegen der Passatwinde","Wegen der Nähe zum Meer"], c:1},
+  {q:"Was ist der Unterschied zwischen Regenwald und Savanne?", a:"Regenwald = immer feucht und dicht. Savanne = Wechsel von Regen- und Trockenzeit, trockener.", l:0, cat:"Tropen", mc:["Kein Unterschied","Regenwald ist immer feucht, Savanne hat Regen- und Trockenzeit","Savanne ist feuchter","Regenwald hat eine Trockenzeit"], c:1},
+  {q:"Welche Tiere sind in den Tropen nachts aktiv?", a:"Viele Tiere, weil es nachts warm bleibt.", l:0, cat:"Tropen", mc:["Nur Vögel","Keine Tiere","Viele Tiere, weil es nachts warm bleibt","Nur Insekten"], c:2},
+  {q:"Gibt es in den Tropen Jahreszeiten wie in Europa?", a:"Nein, es gibt keine Jahreszeiten, sondern ein Tageszeitenklima.", l:0, cat:"Tropen", mc:["Ja, vier Jahreszeiten","Ja, zwei Jahreszeiten","Nein, es gibt ein Tageszeitenklima","Ja, nur Winter und Sommer"], c:2},
+
+  // ===== TROPISCHER REGENWALD (12 Fragen) =====
+  {q:"Wo auf der Erde liegen tropische Regenwälder?", a:"In der Nähe des Äquators – in Südamerika, Afrika, Asien und Australien.", l:0, cat:"Regenwald", mc:["Nur in Europa","In Südamerika, Afrika, Asien und Australien","Nur in der Arktis","Nur in Australien"], c:1},
+  {q:"Warum wird der Regenwald als 'grüne Lunge der Erde' bezeichnet?", a:"Weil die Pflanzen durch Fotosynthese Sauerstoff produzieren.", l:0, cat:"Regenwald", mc:["Wegen seiner grünen Farbe","Weil er so groß ist","Weil Pflanzen Sauerstoff durch Fotosynthese produzieren","Wegen der hohen Temperaturen"], c:2},
+  {q:"Warum wird der Regenwald als 'Apotheke der Erde' bezeichnet?", a:"Weil viele Pflanzen im Regenwald für die Herstellung von Medikamenten genutzt werden.", l:0, cat:"Regenwald", mc:["Wegen seiner grünen Farbe","Wegen der vielen Krankheiten dort","Weil viele Pflanzen für Medikamente genutzt werden","Wegen der vielen Ärzte in der Region"], c:2},
+  {q:"Warum ist der Regenwald so artenreich?", a:"Weil das Klima gleichbleibend warm ist, immer Wasser vorhanden ist und viele verschiedene Lebensräume entstehen.", l:0, cat:"Regenwald", mc:["Weil er so groß ist","Weil viele Menschen dort leben","Weil Klima warm ist, Wasser vorhanden und viele Lebensräume entstehen","Wegen des Bodens"], c:2},
+  {q:"Warum haben Pflanzen im Regenwald große Blätter?", a:"Damit sie mehr Licht aufnehmen können. Außerdem kann Regenwasser besser abfließen.", l:0, cat:"Regenwald", mc:["Zur Dekoration","Um Wasser zu speichern","Um mehr Licht aufzunehmen und Wasser abfließen zu lassen","Zum Schutz vor Tieren"], c:2},
+  {q:"Wie ist der Boden im Regenwald?", a:"Der Boden ist oft nährstoffarm. Viele Nährstoffe stecken in den Pflanzen selbst.", l:0, cat:"Regenwald", mc:["Sehr nährstoffreich","Sandig und trocken","Nährstoffarm, Nährstoffe stecken in den Pflanzen","Felsig und steinig"], c:2},
+  {q:"Warum werden Regenwälder abgeholzt?", a:"Für Holz, Landwirtschaft, Plantagen (z.B. Ölpalmen) und Siedlungen.", l:0, cat:"Regenwald", mc:["Für Sportstätten","Für Holz, Landwirtschaft, Plantagen und Siedlungen","Um Klimazonen zu verändern","Zum Schutz von Tieren"], c:1},
+  {q:"Was beeinflusst der Regenwald auf der Erde?", a:"Das Klima und er speichert viel Wasser – er ist ein wichtiger Klimaregler.", l:0, cat:"Regenwald", mc:["Nur die Temperaturen","Das Klima und Wasserspeicherung","Nur die Luftfeuchtigkeit","Nur die Meeresströmungen"], c:1},
+  {q:"Warum geht durch Abholzung Lebensraum verloren?", a:"Weil unzählige Tier- und Pflanzenarten im Regenwald leben und ihren Lebensraum verlieren.", l:0, cat:"Regenwald", mc:["Weil der Boden dann besser ist","Weil die Temperaturen sinken","Weil unzählige Tier- und Pflanzenarten ihren Lebensraum verlieren","Weil es mehr regnet"], c:2},
+  {q:"Welche Bedeutung hat der Regenwald als Lebensraum?", a:"Unzählige Tier- und Pflanzenarten leben dort – er ist der artenreichste Lebensraum der Erde.", l:0, cat:"Regenwald", mc:["Wenige Arten leben dort","Er ist ein artenreicher Lebensraum für unzählige Arten","Nur Insekten leben dort","Nur Bäume wachsen dort"], c:1},
+  {q:"Was ist eine Ölpalmen-Plantage und warum ist sie ein Problem?", a:"Eine Ölpalmen-Plantage ist eine Nutzpflanzenanlage. Für ihre Anlage wird Regenwald abgeholzt.", l:0, cat:"Regenwald", mc:["Eine natürliche Pflanzengemeinschaft","Eine Nutzpflanzenanlage, für die Regenwald abgeholzt wird","Ein geschütztes Naturgebiet","Ein Wasserreservoir"], c:1},
+  {q:"Warum ist der Regenwald immergrün?", a:"Weil es das ganze Jahr über warm und feucht ist – es gibt keine Trockenperiode, in der Blätter abgeworfen werden müssten.", l:0, cat:"Regenwald", mc:["Wegen der speziellen Farbe der Blätter","Weil es ganzjährig warm und feucht ist","Wegen der Nährstoffe im Boden","Wegen der Sonnenintensität"], c:1},
+
+  // ===== STOCKWERKBAU (10 Fragen) =====
+  {q:"Was ist der Stockwerkbau im Regenwald?", a:"Die Einteilung des Regenwaldes in verschiedene Schichten (Stockwerke) mit unterschiedlichen Pflanzen und Tieren.", l:0, cat:"Stockwerk", mc:["Ein Hochhaus im Regenwald","Einteilung in verschiedene Schichten mit unterschiedlichen Pflanzen und Tieren","Die Höhe der Bäume","Die Schichten des Bodens"], c:1},
+  {q:"Welches Stockwerk liegt ganz unten im Regenwald?", a:"Die Krautschicht – dunkel und feucht, mit Moosen, Pilzen, Insekten und Jaguar.", l:0, cat:"Stockwerk", mc:["Baumriesen","Obere Baumschicht","Krautschicht – dunkel und feucht","Strauchschicht"], c:2},
+  {q:"Was lebt in der Krautschicht des Regenwaldes?", a:"Moose, Pilze, Insekten, Jaguar.", l:0, cat:"Stockwerk", mc:["Papageien und Schmetterlinge","Affen und Faultiere","Moose, Pilze, Insekten, Jaguar","Frösche und Kolibris"], c:2},
+  {q:"Was ist die Strauchschicht und was lebt dort?", a:"Die Strauchschicht bekommt wenig Licht. Dort wachsen Farne und Sträucher, und es leben Schlangen.", l:0, cat:"Stockwerk", mc:["Ganz oben, viel Licht, Papageien","Wenig Licht, Farne, Sträucher, Schlangen","Ganz unten, dunkel, Moose","Mittlere Schicht, Palmen, Frösche"], c:1},
+  {q:"Was ist die untere Baumschicht und was lebt dort?", a:"Kleinere Palmen und Bäume. Dort leben Frösche und Kolibris.", l:0, cat:"Stockwerk", mc:["Höchste Schicht, Papageien","Kleinere Palmen und Bäume, Frösche, Kolibris","Ganz unten, Moose, Jaguar","Baumkronen, Affen, Faultiere"], c:1},
+  {q:"Was ist die obere Baumschicht?", a:"Die Baumkronen bilden das Dach. Dort leben Affen und Faultiere.", l:0, cat:"Stockwerk", mc:["Einzelne überragende Bäume, Papageien","Ganz unten, Moose","Baumkronen bilden das Dach, Affen, Faultiere","Kleine Pflanzen, Schlangen"], c:2},
+  {q:"Was sind die Baumriesen im Regenwald?", a:"Einzelne sehr hohe Bäume, die über alle anderen hinausragen. Dort leben Papageien und Schmetterlinge.", l:0, cat:"Stockwerk", mc:["Die unterste Schicht mit Moosen","Normale Bäume im Wald","Einzelne sehr hohe Bäume, Papageien, Schmetterlinge","Die mittlere Schicht mit Farnen"], c:2},
+  {q:"Warum gibt es in der Krautschicht wenig Licht?", a:"Weil die darüber liegenden Stockwerke (Sträucher, Bäume, Baumkronen) das Licht abfangen.", l:0, cat:"Stockwerk", mc:["Weil die Sonne nicht scheint","Weil die darüber liegenden Stockwerke das Licht abfangen","Weil die Erde das Licht schluckt","Wegen des vielen Regens"], c:1},
+  {q:"Wie viele Stockwerke hat der Regenwald?", a:"Fünf: Krautschicht, Strauchschicht, Untere Baumschicht, Obere Baumschicht, Baumriesen.", l:0, cat:"Stockwerk", mc:["Zwei","Drei","Vier","Fünf: Krautschicht, Strauchschicht, Untere Baumschicht, Obere Baumschicht, Baumriesen"], c:3},
+  {q:"Warum ist der Stockwerkbau für den Regenwald wichtig?", a:"Er ermöglicht vielen verschiedenen Tier- und Pflanzenarten das Leben auf kleinstem Raum – jedes Stockwerk ist ein eigener Lebensraum.", l:0, cat:"Stockwerk", mc:["Er macht den Wald ordentlicher","Jedes Stockwerk bietet einen eigenen Lebensraum für viele Arten","Er schützt vor Regen","Er erhöht die Temperatur"], c:1},
+
+  // ===== SAVANNE (5 Fragen) =====
+  {q:"Was ist eine Savanne?", a:"Eine Graslandschaft mit einzelnen Bäumen oder Baumgruppen. Sie ist trockener als der Regenwald.", l:0, cat:"Savanne", mc:["Ein sehr dichter Wald","Eine Graslandschaft mit einzelnen Bäumen, trockener als Regenwald","Eine Wüste ohne Pflanzen","Ein Sumpfgebiet"], c:1},
+  {q:"Was ist das Besondere am Klima der Savanne?", a:"Es gibt eine Regenzeit und eine Trockenzeit.", l:0, cat:"Savanne", mc:["Immer gleichmäßig feucht","Eine Regenzeit und eine Trockenzeit","Immer trocken","Vier Jahreszeiten wie in Europa"], c:1},
+  {q:"Wo liegt die Savanne?", a:"In den Tropen, neben dem Regenwald.", l:0, cat:"Savanne", mc:["In den Polargebieten","In den Subtropen","In den Tropen, neben dem Regenwald","In Europa"], c:2},
+  {q:"Was ist der Hauptunterschied zwischen Regenwald und Savanne?", a:"Regenwald ist immer feucht und dicht. Savanne wechselt zwischen Regen- und Trockenzeit und ist offener.", l:0, cat:"Savanne", mc:["Regenwald ist trockener","Savanne ist dichter","Regenwald immer feucht, Savanne mit Wechsel von Regen- und Trockenzeit","Kein Unterschied"], c:2},
+  {q:"Welche Pflanzen sind typisch für die Savanne?", a:"Gräser und einzelne Bäume oder Baumgruppen (z.B. Akazien, Baobab).", l:0, cat:"Savanne", mc:["Nur Kakteen","Dichter immergrüner Wald","Gräser und einzelne Bäume oder Baumgruppen","Nur Moose"], c:2},
+
+  // ===== KLIMADIAGRAMM (8 Fragen) =====
+  {q:"Was zeigt ein Klimadiagramm?", a:"Das Klima eines Ortes über ein ganzes Jahr – Temperaturen und Niederschlag pro Monat.", l:0, cat:"Klimadiagramm", mc:["Die Höhenlage eines Ortes","Das Klima eines Ortes über ein Jahr (Temperatur und Niederschlag)","Die Bevölkerungszahl","Die politischen Grenzen"], c:1},
+  {q:"Was zeigt die Linie in einem Klimadiagramm?", a:"Die Temperatur (in Grad Celsius).", l:0, cat:"Klimadiagramm", mc:["Den Niederschlag","Die Temperatur in Grad Celsius","Die Sonnenstunden","Die Luftfeuchtigkeit"], c:1},
+  {q:"Was zeigen die Balken in einem Klimadiagramm?", a:"Den Niederschlag (in Millimeter).", l:0, cat:"Klimadiagramm", mc:["Die Temperatur","Den Niederschlag in Millimeter","Die Windstärke","Die Luftfeuchtigkeit"], c:1},
+  {q:"Was steht unten im Klimadiagramm?", a:"Die Monate (Zeitverlauf über das Jahr).", l:0, cat:"Klimadiagramm", mc:["Die Temperaturen","Die Niederschläge","Die Monate","Die Jahreszahlen"], c:2},
+  {q:"In welchen Einheiten werden Temperatur und Niederschlag im Klimadiagramm angegeben?", a:"Temperatur: Grad Celsius (°C). Niederschlag: Millimeter (mm).", l:0, cat:"Klimadiagramm", mc:["Temperatur in Fahrenheit, Niederschlag in Liter","Temperatur in Kelvin, Niederschlag in cm","Temperatur in °C, Niederschlag in mm","Temperatur in °C, Niederschlag in km"], c:2},
+  {q:"Was sagt ein Klimadiagramm von Jakarta über das Klima aus?", a:"Jakarta hat fast das ganze Jahr über hohe Temperaturen und viel Niederschlag – typisch für die Tropen.", l:0, cat:"Klimadiagramm", mc:["Kaltes Klima mit wenig Niederschlag","Vier Jahreszeiten","Hohe Temperaturen und viel Niederschlag ganzjährig – tropisch","Trockenes Wüstenklima"], c:2},
+  {q:"Wie erkennst du eine Trockenzeit im Klimadiagramm?", a:"Die Balken (Niederschlag) sind sehr niedrig oder fehlen fast ganz in bestimmten Monaten.", l:0, cat:"Klimadiagramm", mc:["Die Linie geht nach oben","Die Balken sind sehr hoch","Die Balken sind sehr niedrig oder fehlen","Die Monate sind markiert"], c:2},
+  {q:"Wie erkennst du eine Regenzeit im Klimadiagramm?", a:"Die Balken (Niederschlag) sind sehr hoch in bestimmten Monaten.", l:0, cat:"Klimadiagramm", mc:["Die Balken sind sehr niedrig","Die Linie geht steil nach unten","Die Balken sind sehr hoch","Es gibt keine Balken"], c:2},
+
+  // ===== SUBTROPEN & WÜSTEN (15 Fragen) =====
+  {q:"Wo liegen die Subtropen?", a:"Zwischen der tropischen und der gemäßigten Zone, rund um die beiden Wendekreise.", l:0, cat:"Wüsten", mc:["Am Äquator","Bei den Polen","Zwischen Tropen und gemäßigter Zone, rund um die Wendekreise","Nur in Afrika"], c:2},
+  {q:"Was ist eine Wüste?", a:"Eine sehr trockene Landschaft mit wenig oder gar keinen Pflanzen.", l:0, cat:"Wüsten", mc:["Ein sehr feuchtes Gebiet","Eine sehr trockene Landschaft mit wenig oder gar keinen Pflanzen","Ein Grasland mit einzelnen Bäumen","Ein dichter Wald"], c:1},
+  {q:"Wie viel Niederschlag fällt in einer Trockenwüste?", a:"Sehr wenig – manchmal jahrelang nicht oder nur sehr selten.", l:0, cat:"Wüsten", mc:["Ca. 500 mm pro Jahr","Sehr viel, über 2000 mm","Manchmal jahrelang nicht oder sehr selten","Ca. 100 mm pro Jahr"], c:2},
+  {q:"Was ist typisch für das Klima einer Wüste?", a:"Große Temperaturunterschiede: tagsüber sehr heiß, nachts stark abkühlend.", l:0, cat:"Wüsten", mc:["Immer gleichmäßig warm","Viel Regen und kühle Temperaturen","Tagsüber sehr heiß, nachts stark abkühlend","Immer kalt"], c:2},
+  {q:"Was ist eine Sandwüste und wie heißt sie auf Arabisch?", a:"Eine Wüste mit riesigen Sanddünen. Arabisch: Erg.", l:0, cat:"Wüsten", mc:["Felswüste, Hamada","Kieswüste, Serir","Sandwüste, Erg","Salzwüste, Kavir"], c:2},
+  {q:"Was ist eine Felswüste und wie heißt sie?", a:"Eine Wüste aus Felsen und Gesteinsbrocken. Bezeichnung: Hamada.", l:0, cat:"Wüsten", mc:["Sandwüste, Erg","Felswüste, Hamada","Kieswüste, Serir","Eiswüste"], c:1},
+  {q:"Was ist eine Kieswüste und wie heißt sie?", a:"Eine Wüste aus Geröll, Kies und flachen Flächen. Bezeichnung: Serir.", l:0, cat:"Wüsten", mc:["Felswüste, Hamada","Sandwüste, Erg","Kieswüste, Serir","Salzwüste"], c:2},
+  {q:"Welche zusätzlichen Wüstenarten gibt es noch?", a:"Salzwüsten und Eiswüsten (z.B. Antarktis oder Grönland).", l:0, cat:"Wüsten", mc:["Nur Sand- und Felswüsten","Salzwüsten und Eiswüsten (Antarktis, Grönland)","Sumpfwüsten und Waldwüsten","Regenwüsten"], c:1},
+  {q:"Wo liegt die Sahara und wie groß ist sie?", a:"In Afrika, vom Atlantik bis zum Roten Meer. Ca. 6000 km lang und 9 Millionen km² groß.", l:0, cat:"Wüsten", mc:["In Asien, 2 Millionen km²","In Australien, 5 Millionen km²","In Afrika, ca. 6000 km lang, 9 Millionen km²","In Südamerika, 1 Million km²"], c:2},
+  {q:"Besteht die Sahara nur aus Sand?", a:"Nein. Sie besteht auch aus Geröll und Felsen. Es gibt sogar Gebirge mit bis zu 3000 m Höhe.", l:0, cat:"Wüsten", mc:["Ja, nur aus Sand","Nein, auch Geröll, Felsen und Gebirge bis 3000 m","Nein, hauptsächlich Felsen","Ja, und Salz"], c:1},
+  {q:"Was ist eine Oase?", a:"Eine Wasserstelle in der Wüste – ein wichtiger Lebensraum für Menschen und Tiere.", l:0, cat:"Wüsten", mc:["Ein Sandberg in der Wüste","Eine Stadt in der Wüste","Eine Wasserstelle in der Wüste","Ein Gebirge in der Wüste"], c:2},
+  {q:"Was sind Nomaden?", a:"Nicht sesshafte Menschen ohne festen Wohnort, die mit ihren Tieren umherziehen.", l:0, cat:"Wüsten", mc:["Stadtbewohner in der Wüste","Nicht sesshafte Menschen ohne festen Wohnort","Handwerker in der Wüste","Bauern mit festen Feldern"], c:1},
+  {q:"Warum ist das Kamel gut an die Wüste angepasst?", a:"Es kann sehr viel Wasser aufnehmen und lange ohne Wasser auskommen.", l:0, cat:"Wüsten", mc:["Es hat ein dickes Fell","Es kann sehr viel Wasser aufnehmen und lange ohne Wasser auskommen","Es läuft sehr schnell","Es frisst nur Sand"], c:1},
+  {q:"Wie schützen sich Menschen in der Wüste vor Hitze?", a:"Mit Kleidung und Kopfbedeckung, viel Trinken und salziger Ernährung (wegen Schweißverlust).", l:0, cat:"Wüsten", mc:["Sie verstecken sich in Höhlen","Mit Kleidung, Kopfbedeckung, viel Trinken, salziger Ernährung","Mit Sonnencreme","Sie arbeiten nur nachts"], c:1},
+  {q:"Was bedeutet Verwitterung in der Wüste?", a:"Durch starke Erwärmung am Tag und starke Abkühlung in der Nacht wird Gestein sprengartig zerbrochen.", l:0, cat:"Wüsten", mc:["Das Wasser löst das Gestein","Gestein wird durch Temperaturschwankungen sprengartig zerbrochen","Der Wind trägt Sand weg","Pflanzen durchdringen das Gestein"], c:1},
+
+  // ===== ATLASARBEIT (8 Fragen) =====
+  {q:"Welcher Klimazone gehört Jakarta an?", a:"Den Tropen / heißen Zone.", l:0, cat:"Atlas", mc:["Gemäßigte Zone","Subtropen","Tropen / heiße Zone","Kalte Zone"], c:2},
+  {q:"Welcher Klimazone gehört San Diego an?", a:"Warmgemäßigte Zone / Subtropen.", l:0, cat:"Atlas", mc:["Kalte Zone","Tropen","Warmgemäßigte Zone / Subtropen","Polarzone"], c:2},
+  {q:"Welcher Klimazone gehört Novosibirsk an?", a:"Kalte Zone.", l:0, cat:"Atlas", mc:["Tropen","Subtropen","Gemäßigte Zone","Kalte Zone"], c:3},
+  {q:"Welche europäischen Länder liegen in der warmgemäßigten Zone?", a:"Spanien, Italien, Portugal, Kroatien, Bulgarien und Slowenien.", l:0, cat:"Atlas", mc:["Deutschland, Österreich, Schweiz","Spanien, Italien, Portugal, Kroatien, Bulgarien, Slowenien","Schweden, Norwegen, Finnland","Russland, Ukraine, Weißrussland"], c:1},
+  {q:"Was sind typische Atlasfragen?", a:"Eine Stadt, einen Fluss und ein Gebirge einer Klimazone zuordnen oder eine Stadt mit mehr als 1 Million Einwohnern in einer Zone finden.", l:0, cat:"Atlas", mc:["Hauptstädte auswendig lernen","Klimazonen auf der Karte erkennen und Beispiele zuordnen","Alle Flüsse der Welt kennen","Bevölkerungszahlen lernen"], c:1},
+  {q:"Wie erkennst du die Tropen auf einer Karte?", a:"Die Tropen liegen rund um den Äquator zwischen den Wendekreisen und sind rot eingefärbt.", l:0, cat:"Atlas", mc:["Blaue Farbe bei den Polen","Gelbe Farbe bei den Wendekreisen","Rote Farbe rund um den Äquator zwischen den Wendekreisen","Grüne Farbe in der Mitte Europas"], c:2},
+  {q:"Wie erkennst du die Wüstengebiete auf einer Weltkarte?", a:"Sie liegen meist rund um die Wendekreise (Subtropen), sind gelb eingefärbt und kaum begrünt.", l:0, cat:"Atlas", mc:["Am Äquator, rot","Bei den Polen, blau","Rund um die Wendekreise, gelb","In der Mitte Europas, grün"], c:2},
+  {q:"Welche Klimazone ist in Österreich?", a:"Die gemäßigte Zone.", l:0, cat:"Atlas", mc:["Tropen","Subtropen","Gemäßigte Zone","Kalte Zone"], c:2}
+];
+
+let currentQuestion, currentMode = 'normal', activeFilter = null, mcAnswered = false;
+
+function loadProgress() {
+  const saved = localStorage.getItem("geoTrainer");
+  if (saved) {
+    const savedData = JSON.parse(saved);
+    questions.forEach((q, i) => { if (savedData[i]) q.l = savedData[i].l; });
+  }
+}
+
+function saveProgress() {
+  localStorage.setItem("geoTrainer", JSON.stringify(questions));
+}
+
+function getFilteredQuestions() {
+  return activeFilter ? questions.filter(q => q.cat === activeFilter) : questions;
+}
+
+function pickQuestion() {
+  const pool = getFilteredQuestions();
+  
+  if (currentMode === 'mc') {
+    const mcPool = pool.filter(q => q.mc);
+    if (mcPool.length === 0) {
+      alert("Keine Multiple-Choice-Fragen in diesem Thema verfügbar!");
+      switchMode('normal');
+      return;
+    }
+    let weighted = [];
+    mcPool.forEach(q => {
+      const weight = q.l === 0 ? 5 : q.l === 1 ? 2 : 1;
+      for (let j = 0; j < weight; j++) weighted.push(q);
+    });
+    currentQuestion = weighted[Math.floor(Math.random() * weighted.length)];
+  } else {
+    let weighted = [];
+    pool.forEach(q => {
+      const weight = q.l === 0 ? 5 : q.l === 1 ? 2 : 1;
+      for (let j = 0; j < weight; j++) weighted.push(q);
+    });
+    currentQuestion = weighted[Math.floor(Math.random() * weighted.length)];
+  }
+  
+  displayQuestion();
+  updateStats();
+}
+
+function displayQuestion() {
+  const levelNames = ["Stufe A (neu)", "Stufe B (unsicher)", "Stufe C (sitzt)"];
+  const levelClasses = ["badge-a", "badge-b", "badge-c"];
+  
+  document.getElementById("levelBadge").innerHTML = 
+    `<span class="level-badge ${levelClasses[currentQuestion.l]}">${levelNames[currentQuestion.l]}</span>`;
+  document.getElementById("question").textContent = currentQuestion.q;
+  
+  if (currentMode === 'normal') {
+    document.getElementById("answerContent").textContent = currentQuestion.a;
+    const answerBox = document.getElementById("answerContent");
+    answerBox.classList.remove("show");
+    document.querySelector(".arrow").classList.remove("rotated");
+  } else {
+    displayMCOptions();
+  }
+}
+
+function displayMCOptions() {
+  mcAnswered = false;
+  const optionsDiv = document.getElementById("mcOptions");
+  const feedbackDiv = document.getElementById("mcFeedback");
+  const nextBtn = document.getElementById("mcNextBtn");
+  
+  optionsDiv.innerHTML = '';
+  feedbackDiv.className = 'mc-feedback';
+  feedbackDiv.textContent = '';
+  nextBtn.classList.remove('show');
+  
+  if (!currentQuestion.mc) {
+    optionsDiv.innerHTML = '<p style="color: #7f8c8d;">Keine Multiple-Choice-Optionen verfügbar.</p>';
+    return;
+  }
+  
+  const options = currentQuestion.mc.map((option, index) => ({
+    text: option,
+    isCorrect: index === currentQuestion.c
+  }));
+  
+  for (let i = options.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [options[i], options[j]] = [options[j], options[i]];
+  }
+  
+  options.forEach(opt => {
+    const optionDiv = document.createElement('div');
+    optionDiv.className = 'mc-option';
+    optionDiv.textContent = opt.text;
+    optionDiv.onclick = () => checkMCAnswer(opt.isCorrect, optionDiv);
+    optionsDiv.appendChild(optionDiv);
+  });
+}
+
+function checkMCAnswer(isCorrect, element) {
+  if (mcAnswered) return;
+  mcAnswered = true;
+  
+  const options = document.querySelectorAll('.mc-option');
+  const feedbackDiv = document.getElementById("mcFeedback");
+  const nextBtn = document.getElementById("mcNextBtn");
+  
+  options.forEach(opt => opt.classList.add('disabled'));
+  
+  if (isCorrect) {
+    element.classList.add('correct');
+    feedbackDiv.className = 'mc-feedback correct show';
+    feedbackDiv.textContent = '✓ Richtig! ' + currentQuestion.a;
+    if (currentQuestion.l < 2) currentQuestion.l++;
+  } else {
+    element.classList.add('wrong');
+    options.forEach(opt => {
+      if (opt.textContent === currentQuestion.mc[currentQuestion.c]) {
+        opt.classList.add('correct');
+      }
+    });
+    feedbackDiv.className = 'mc-feedback wrong show';
+    feedbackDiv.textContent = '✗ Leider falsch. Richtige Antwort: ' + currentQuestion.a;
+    if (currentQuestion.l > 0) currentQuestion.l--;
+  }
+  
+  saveProgress();
+  nextBtn.classList.add('show');
+  updateStats();
+}
+
+function nextMC() {
+  pickQuestion();
+}
+
+function markNormal(correct) {
+  if (correct && currentQuestion.l < 2) {
+    currentQuestion.l++;
+  } else if (!correct && currentQuestion.l > 0) {
+    currentQuestion.l--;
+  }
+  saveProgress();
+  pickQuestion();
+}
+
+function switchMode(mode) {
+  currentMode = mode;
+  
+  document.getElementById('normalModeBtn').classList.toggle('active', mode === 'normal');
+  document.getElementById('mcModeBtn').classList.toggle('active', mode === 'mc');
+  
+  document.getElementById('normalMode').style.display = mode === 'normal' ? 'block' : 'none';
+  document.getElementById('mcMode').style.display = mode === 'mc' ? 'block' : 'none';
+  
+  const hint = mode === 'mc' 
+    ? 'Im Multiple-Choice-Modus wird dein Fortschritt automatisch aktualisiert.'
+    : 'Bei richtiger Antwort steigt die Frage eine Stufe auf.';
+  document.getElementById('modeHint').textContent = hint;
+  
+  pickQuestion();
+}
+
+function updateStats() {
+  const pool = activeFilter ? getFilteredQuestions() : questions;
+  const levelA = pool.filter(q => q.l === 0).length;
+  const levelB = pool.filter(q => q.l === 1).length;
+  const levelC = pool.filter(q => q.l === 2).length;
+  const total = pool.length;
+  
+  const progressBars = document.getElementById("progressBars");
+  progressBars.innerHTML = `
+    <div class="progress-item level-a">
+      <div class="progress-label">🔴 Stufe A (neu)</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: ${(levelA/total)*100}%">${levelA}</div>
+      </div>
+    </div>
+    <div class="progress-item level-b">
+      <div class="progress-label">🟡 Stufe B (unsicher)</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: ${(levelB/total)*100}%">${levelB}</div>
+      </div>
+    </div>
+    <div class="progress-item level-c">
+      <div class="progress-label">🟢 Stufe C (sitzt)</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: ${(levelC/total)*100}%">${levelC}</div>
+      </div>
+    </div>
+  `;
+  
+  document.getElementById("totalQuestions").textContent = total;
+  document.getElementById("masteredCount").textContent = levelC;
+  document.getElementById("percentMastered").textContent = Math.round((levelC / total) * 100) + "%";
+}
+
+function initCategoryFilter() {
+  const filterContainer = document.getElementById("categoryFilter");
+  
+  let html = '<button class="filter-btn active" onclick="setFilter(null)">Alle Themen</button>';
+  Object.keys(categories).forEach(cat => {
+    html += `<button class="filter-btn" onclick="setFilter('${categories[cat]}')">${cat}</button>`;
+  });
+  
+  filterContainer.innerHTML = html;
+}
+
+function setFilter(category) {
+  activeFilter = category;
+  
+  document.querySelectorAll(".filter-btn").forEach(btn => {
+    btn.classList.remove("active");
+  });
+  event.target.classList.add("active");
+  
+  pickQuestion();
+}
+
+function resetProgress() {
+  if (confirm("Möchtest du wirklich deinen gesamten Fortschritt zurücksetzen?")) {
+    questions.forEach(q => q.l = 0);
+    saveProgress();
+    pickQuestion();
+  }
+}
+
+document.getElementById("answerToggle").addEventListener("click", function() {
+  const content = document.getElementById("answerContent");
+  const arrow = document.querySelector(".arrow");
+  content.classList.toggle("show");
+  arrow.classList.toggle("rotated");
+});
+
+loadProgress();
+initCategoryFilter();
+pickQuestion();
+</script>
+
+</body>
+</html>
