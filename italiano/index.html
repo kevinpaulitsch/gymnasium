@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Italienisch-Trainer</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #1b5e20;
+  }
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    padding: 30px;
+  }
+  h1 {
+    color: #2e7d32;
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 2em;
+  }
+  .subtitle {
+    text-align: center;
+    color: #558b2f;
+    margin-bottom: 20px;
+    font-size: 0.95em;
+  }
+  .stats {
+    display: flex;
+    justify-content: space-around;
+    background: #f1f8e9;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .stat {
+    text-align: center;
+    flex: 1;
+    min-width: 80px;
+  }
+  .stat-value {
+    font-size: 1.6em;
+    font-weight: bold;
+    color: #2e7d32;
+  }
+  .stat-label {
+    font-size: 0.8em;
+    color: #558b2f;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .controls {
+    background: #f1f8e9;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+  .control-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .control-row:last-child { margin-bottom: 0; }
+  .control-label {
+    font-weight: 600;
+    color: #2e7d32;
+    min-width: 100px;
+    align-self: center;
+    font-size: 0.9em;
+  }
+  select, button {
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 2px solid #a5d6a7;
+    background: white;
+    font-size: 0.95em;
+    cursor: pointer;
+    color: #1b5e20;
+    flex: 1;
+    min-width: 120px;
+  }
+  select:focus { outline: none; border-color: #2e7d32; }
+  button {
+    background: #66bb6a;
+    color: white;
+    border-color: #66bb6a;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  button:hover { background: #43a047; border-color: #43a047; }
+  button.secondary {
+    background: white;
+    color: #2e7d32;
+    border-color: #a5d6a7;
+  }
+  button.secondary:hover { background: #f1f8e9; }
+  .question-area {
+    background: #f9fbe7;
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 20px;
+    text-align: center;
+    border: 2px solid #c5e1a5;
+  }
+  .direction-badge {
+    display: inline-block;
+    background: #2e7d32;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75em;
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+  }
+  .stufe-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75em;
+    margin-bottom: 12px;
+    margin-left: 8px;
+    letter-spacing: 0.5px;
+    font-weight: bold;
+  }
+  .stufe-A { background: #ffcdd2; color: #b71c1c; }
+  .stufe-B { background: #fff9c4; color: #f57f17; }
+  .stufe-C { background: #c8e6c9; color: #1b5e20; }
+  .question-text {
+    font-size: 1.8em;
+    color: #1b5e20;
+    margin-bottom: 8px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  .grammar-hint {
+    font-size: 0.85em;
+    color: #689f38;
+    margin-bottom: 15px;
+    font-style: italic;
+  }
+  .answer-input {
+    width: 100%;
+    padding: 12px;
+    font-size: 1.1em;
+    border: 2px solid #a5d6a7;
+    border-radius: 8px;
+    text-align: center;
+    color: #1b5e20;
+    background: white;
+  }
+  .answer-input:focus { outline: none; border-color: #2e7d32; }
+  .mc-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 15px;
+  }
+  .mc-option {
+    padding: 14px;
+    background: white;
+    border: 2px solid #a5d6a7;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.05em;
+    color: #1b5e20;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .mc-option:hover {
+    background: #f1f8e9;
+    border-color: #2e7d32;
+    transform: translateY(-2px);
+  }
+  .mc-option.correct {
+    background: #c8e6c9;
+    border-color: #2e7d32;
+    color: #1b5e20;
+  }
+  .mc-option.wrong {
+    background: #ffcdd2;
+    border-color: #c62828;
+    color: #b71c1c;
+  }
+  .mc-option:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+  .feedback {
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    display: none;
+  }
+  .feedback.correct {
+    background: #c8e6c9;
+    color: #1b5e20;
+    display: block;
+  }
+  .feedback.wrong {
+    background: #ffcdd2;
+    color: #b71c1c;
+    display: block;
+  }
+  .feedback small {
+    display: block;
+    font-weight: 400;
+    margin-top: 4px;
+    font-size: 0.9em;
+  }
+  .start-screen, .end-screen {
+    text-align: center;
+    padding: 40px 20px;
+  }
+  .start-screen h2, .end-screen h2 {
+    color: #2e7d32;
+    margin-bottom: 20px;
+  }
+  .start-screen p, .end-screen p {
+    color: #558b2f;
+    margin-bottom: 15px;
+    line-height: 1.5;
+  }
+  .big-button {
+    padding: 15px 40px;
+    font-size: 1.1em;
+    margin-top: 20px;
+  }
+  .hidden { display: none !important; }
+  .progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 10px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #66bb6a, #2e7d32);
+    transition: width 0.3s;
+  }
+  .streak-indicator {
+    display: inline-flex;
+    gap: 4px;
+    margin-left: 10px;
+    vertical-align: middle;
+  }
+  .streak-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #e0e0e0;
+  }
+  .streak-dot.active { background: #2e7d32; }
+  .info-line {
+    font-size: 0.85em;
+    color: #689f38;
+    margin-top: 8px;
+  }
+  @media (max-width: 600px) {
+    .container { padding: 20px 15px; }
+    h1 { font-size: 1.5em; }
+    .question-text { font-size: 1.4em; }
+    .mc-options { grid-template-columns: 1fr; }
+    .control-label { min-width: auto; width: 100%; }
+    .stat-value { font-size: 1.3em; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🇮🇹 Italienisch-Trainer</h1>
+  <p class="subtitle">Vocaboli — 3 Stufen wie beim Führerschein</p>
+
+  <!-- Statistik -->
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-value" id="stat-A">0</div>
+      <div class="stat-label">Stufe A</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value" id="stat-B">0</div>
+      <div class="stat-label">Stufe B</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value" id="stat-C">0</div>
+      <div class="stat-label">Stufe C ✓</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value" id="stat-total">0</div>
+      <div class="stat-label">Gesamt</div>
+    </div>
+  </div>
+
+  <!-- Steuerung -->
+  <div class="controls">
+    <div class="control-row">
+      <span class="control-label">Kategorie:</span>
+      <select id="category-select"></select>
+    </div>
+    <div class="control-row">
+      <span class="control-label">Modus:</span>
+      <select id="mode-select">
+        <option value="mc">Multiple Choice</option>
+        <option value="write">Selber schreiben</option>
+        <option value="mixed">Gemischt</option>
+      </select>
+    </div>
+    <div class="control-row">
+      <span class="control-label">Richtung:</span>
+      <select id="direction-select">
+        <option value="de-it">Deutsch → Italienisch</option>
+        <option value="it-de">Italienisch → Deutsch</option>
+        <option value="both">Beide Richtungen</option>
+      </select>
+    </div>
+    <div class="control-row">
+      <button id="start-btn">▶ Training starten</button>
+      <button id="reset-btn" class="secondary">↻ Fortschritt zurücksetzen</button>
+    </div>
+  </div>
+
+  <!-- Startbildschirm -->
+  <div id="start-screen" class="start-screen">
+    <h2>Pronto? 🎯</h2>
+    <p>Wähle oben deine Einstellungen und klicke auf <strong>Training starten</strong>.</p>
+    <p style="margin-top:20px; font-size:0.9em;">
+      📚 <strong>Stufen-System:</strong> 3× richtig in Folge → nächste Stufe. 1× falsch → zurück auf Stufe A.<br>
+      🎯 Vokabeln aus Stufe A kommen häufiger dran als aus B oder C.
+    </p>
+  </div>
+
+  <!-- Frage -->
+  <div id="question-screen" class="hidden">
+    <div class="question-area">
+      <div>
+        <span class="direction-badge" id="direction-badge">DE → IT</span>
+        <span class="stufe-badge" id="stufe-badge">Stufe A</span>
+      </div>
+      <div class="question-text" id="question-text">—</div>
+      <div class="grammar-hint" id="grammar-hint"></div>
+
+      <!-- MC-Modus -->
+      <div id="mc-area" class="mc-options"></div>
+
+      <!-- Schreib-Modus -->
+      <div id="write-area" class="hidden">
+        <input type="text" id="answer-input" class="answer-input" placeholder="Antwort eingeben..." autocomplete="off" autocapitalize="off">
+        <button id="check-btn" style="margin-top:10px; width:100%;">Prüfen</button>
+      </div>
+
+      <div class="feedback" id="feedback"></div>
+      <div class="info-line">
+        <span>Streak:</span>
+        <span class="streak-indicator">
+          <span class="streak-dot" id="dot-1"></span>
+          <span class="streak-dot" id="dot-2"></span>
+          <span class="streak-dot" id="dot-3"></span>
+        </span>
+      </div>
+    </div>
+    <div class="control-row">
+      <button id="next-btn" class="hidden">Weiter →</button>
+      <button id="stop-btn" class="secondary">Training beenden</button>
+    </div>
+  </div>
+</div>
+
+<script src="vocab.js"></script>
+<script>
+// =============== ZUSTAND ===============
+const STORAGE_KEY = 'italianoTrainer_v1';
+let progress = {}; // { vocabId: { stufe: 'A'|'B'|'C', streak: 0 } }
+let currentVocab = null;
+let currentDirection = 'de-it';
+let currentMode = 'mc';
+let currentCategory = 'alle';
+let sessionMode = 'mc';
+let sessionDirection = 'de-it';
+let active = false;
+let answered = false;
+
+// =============== INIT ===============
+function loadProgress() {
+  try {
+    const data = localStorage.getItem(STORAGE_KEY);
+    if (data) progress = JSON.parse(data);
+  } catch(e) { progress = {}; }
+  // Initialisiere fehlende Vokabeln auf Stufe A
+  VOCAB.forEach(v => {
+    if (!progress[v.id]) progress[v.id] = { stufe: 'A', streak: 0 };
+  });
+  saveProgress();
+}
+function saveProgress() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+}
+function resetProgress() {
+  if (!confirm('Wirklich allen Fortschritt zurücksetzen?')) return;
+  progress = {};
+  VOCAB.forEach(v => progress[v.id] = { stufe: 'A', streak: 0 });
+  saveProgress();
+  updateStats();
+}
+
+// =============== KATEGORIEN ===============
+function buildCategoryDropdown() {
+  const sel = document.getElementById('category-select');
+  const cats = [...new Set(VOCAB.map(v => v.cat))];
+  sel.innerHTML = '<option value="alle">Alle Kategorien</option>';
+  cats.forEach(c => {
+    const count = VOCAB.filter(v => v.cat === c).length;
+    sel.innerHTML += `<option value="${c}">${c} (${count})</option>`;
+  });
+}
+
+// =============== STATISTIK ===============
+function updateStats() {
+  const filtered = getFilteredVocab();
+  const counts = { A: 0, B: 0, C: 0 };
+  filtered.forEach(v => {
+    const p = progress[v.id] || { stufe: 'A' };
+    counts[p.stufe]++;
+  });
+  document.getElementById('stat-A').textContent = counts.A;
+  document.getElementById('stat-B').textContent = counts.B;
+  document.getElementById('stat-C').textContent = counts.C;
+  document.getElementById('stat-total').textContent = filtered.length;
+}
+
+function getFilteredVocab() {
+  if (currentCategory === 'alle') return VOCAB;
+  return VOCAB.filter(v => v.cat === currentCategory);
+}
+
+// =============== VOKABEL-AUSWAHL ===============
+function pickNextVocab() {
+  const pool = getFilteredVocab();
+  if (pool.length === 0) return null;
+
+  // Gewichtung: A=5, B=2, C=1
+  const weights = { A: 5, B: 2, C: 1 };
+  const weighted = [];
+  pool.forEach(v => {
+    const stufe = (progress[v.id] || {stufe:'A'}).stufe;
+    const w = weights[stufe];
+    for (let i = 0; i < w; i++) weighted.push(v);
+  });
+
+  // Nicht die gleiche Vokabel zweimal hintereinander (falls möglich)
+  let attempts = 0;
+  let pick;
+  do {
+    pick = weighted[Math.floor(Math.random() * weighted.length)];
+    attempts++;
+  } while (currentVocab && pick.id === currentVocab.id && attempts < 10 && pool.length > 1);
+  return pick;
+}
+
+// =============== STUFEN-LOGIK ===============
+function handleAnswer(correct) {
+  const p = progress[currentVocab.id];
+  if (correct) {
+    p.streak++;
+    if (p.streak >= 3) {
+      if (p.stufe === 'A') p.stufe = 'B';
+      else if (p.stufe === 'B') p.stufe = 'C';
+      p.streak = 0;
+    }
+  } else {
+    p.stufe = 'A';
+    p.streak = 0;
+  }
+  saveProgress();
+  updateStats();
+  updateStreakDots(p.streak);
+}
+
+function updateStreakDots(streak) {
+  for (let i = 1; i <= 3; i++) {
+    const dot = document.getElementById('dot-' + i);
+    dot.classList.toggle('active', i <= streak);
+  }
+}
+
+// =============== FRAGE ANZEIGEN ===============
+function showQuestion() {
+  currentVocab = pickNextVocab();
+  if (!currentVocab) {
+    alert('Keine Vokabeln in dieser Kategorie!');
+    stopTraining();
+    return;
+  }
+  answered = false;
+
+  // Richtung bestimmen
+  if (sessionDirection === 'both') {
+    currentDirection = Math.random() < 0.5 ? 'de-it' : 'it-de';
+  } else {
+    currentDirection = sessionDirection;
+  }
+
+  // Modus bestimmen
+  if (sessionMode === 'mixed') {
+    currentMode = Math.random() < 0.5 ? 'mc' : 'write';
+  } else {
+    currentMode = sessionMode;
+  }
+
+  const p = progress[currentVocab.id];
+  const questionText = currentDirection === 'de-it' ? currentVocab.de : currentVocab.it;
+
+  document.getElementById('direction-badge').textContent = currentDirection === 'de-it' ? 'DE → IT' : 'IT → DE';
+  document.getElementById('stufe-badge').textContent = 'Stufe ' + p.stufe;
+  document.getElementById('stufe-badge').className = 'stufe-badge stufe-' + p.stufe;
+  document.getElementById('question-text').textContent = questionText;
+
+  // Grammatik-Hinweis (nur bei IT→DE, damit das Lernen nicht verraten wird)
+  const hint = document.getElementById('grammar-hint');
+  if (currentDirection === 'it-de' && currentVocab.gram) {
+    hint.textContent = currentVocab.gram;
+  } else {
+    hint.textContent = '';
+  }
+
+  document.getElementById('feedback').style.display = 'none';
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('next-btn').classList.add('hidden');
+  updateStreakDots(p.streak);
+
+  if (currentMode === 'mc') {
+    showMC();
+  } else {
+    showWrite();
+  }
+}
+
+function showMC() {
+  document.getElementById('mc-area').classList.remove('hidden');
+  document.getElementById('write-area').classList.add('hidden');
+
+  const correct = currentDirection === 'de-it' ? currentVocab.it : currentVocab.de;
+  const pool = getFilteredVocab().filter(v => v.id !== currentVocab.id);
+  // 3 zufällige falsche Antworten
+  const shuffled = pool.sort(() => Math.random() - 0.5);
+  const distractors = [];
+  for (const v of shuffled) {
+    if (distractors.length >= 3) break;
+    const ans = currentDirection === 'de-it' ? v.it : v.de;
+    if (ans !== correct && !distractors.includes(ans)) {
+      distractors.push(ans);
+    }
+  }
+  const options = [correct, ...distractors].sort(() => Math.random() - 0.5);
+
+  const mcArea = document.getElementById('mc-area');
+  mcArea.innerHTML = '';
+  options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'mc-option';
+    btn.textContent = opt;
+    btn.onclick = () => checkMC(btn, opt, correct);
+    mcArea.appendChild(btn);
+  });
+}
+
+function checkMC(btn, picked, correct) {
+  if (answered) return;
+  answered = true;
+  const isCorrect = picked === correct;
+  document.querySelectorAll('.mc-option').forEach(b => {
+    b.disabled = true;
+    if (b.textContent === correct) b.classList.add('correct');
+    else if (b === btn && !isCorrect) b.classList.add('wrong');
+  });
+  showFeedback(isCorrect, correct);
+  handleAnswer(isCorrect);
+  document.getElementById('next-btn').classList.remove('hidden');
+}
+
+function showWrite() {
+  document.getElementById('mc-area').classList.add('hidden');
+  document.getElementById('write-area').classList.remove('hidden');
+  const input = document.getElementById('answer-input');
+  input.value = '';
+  input.disabled = false;
+  input.focus();
+  document.getElementById('check-btn').disabled = false;
+}
+
+function normalize(s) {
+  return s.toLowerCase()
+    .trim()
+    .replace(/[!?.,;:]/g, '')
+    .replace(/\s+/g, ' ');
+}
+
+function checkWrite() {
+  if (answered) return;
+  const input = document.getElementById('answer-input');
+  const userAnswer = input.value.trim();
+  if (!userAnswer) return;
+  answered = true;
+
+  const correct = currentDirection === 'de-it' ? currentVocab.it : currentVocab.de;
+  // Mehrere akzeptierte Antworten durch / getrennt
+  const acceptable = correct.split('/').map(s => normalize(s));
+  const userNorm = normalize(userAnswer);
+  // Auch ohne Artikel akzeptieren (il/la/lo/l'/i/le/gli)
+  const userStripped = userNorm.replace(/^(il |la |lo |l'|i |le |gli |un |una |uno |der |die |das )/, '');
+  const acceptableStripped = acceptable.map(a => a.replace(/^(il |la |lo |l'|i |le |gli |un |una |uno |der |die |das )/, ''));
+
+  const isCorrect = acceptable.includes(userNorm) || acceptableStripped.includes(userStripped);
+
+  input.disabled = true;
+  document.getElementById('check-btn').disabled = true;
+  showFeedback(isCorrect, correct);
+  handleAnswer(isCorrect);
+  document.getElementById('next-btn').classList.remove('hidden');
+}
+
+function showFeedback(isCorrect, correct) {
+  const fb = document.getElementById('feedback');
+  if (isCorrect) {
+    fb.className = 'feedback correct';
+    fb.innerHTML = '✓ Richtig! Bravo!';
+  } else {
+    fb.className = 'feedback wrong';
+    fb.innerHTML = '✗ Falsch. <small>Richtig wäre: <strong>' + correct + '</strong></small>';
+  }
+  // Bei Italienisch-Antworten Grammatik mit anzeigen
+  if (currentVocab.gram && currentDirection === 'de-it') {
+    fb.innerHTML += '<small style="opacity:0.85">' + currentVocab.gram + '</small>';
+  }
+}
+
+// =============== TRAINING ===============
+function startTraining() {
+  currentCategory = document.getElementById('category-select').value;
+  sessionMode = document.getElementById('mode-select').value;
+  sessionDirection = document.getElementById('direction-select').value;
+  active = true;
+  document.getElementById('start-screen').classList.add('hidden');
+  document.getElementById('question-screen').classList.remove('hidden');
+  updateStats();
+  showQuestion();
+}
+
+function stopTraining() {
+  active = false;
+  document.getElementById('start-screen').classList.remove('hidden');
+  document.getElementById('question-screen').classList.add('hidden');
+}
+
+// =============== EVENTS ===============
+document.getElementById('start-btn').onclick = startTraining;
+document.getElementById('stop-btn').onclick = stopTraining;
+document.getElementById('reset-btn').onclick = resetProgress;
+document.getElementById('next-btn').onclick = showQuestion;
+document.getElementById('check-btn').onclick = checkWrite;
+document.getElementById('answer-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    if (answered) showQuestion();
+    else checkWrite();
+  }
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && answered && !document.getElementById('next-btn').classList.contains('hidden')) {
+    if (document.activeElement.id !== 'answer-input') showQuestion();
+  }
+});
+document.getElementById('category-select').onchange = updateStats;
+
+// =============== START ===============
+loadProgress();
+buildCategoryDropdown();
+updateStats();
+</script>
+</body>
+</html>
